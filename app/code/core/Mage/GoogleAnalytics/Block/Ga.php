@@ -156,7 +156,6 @@ gtag('set', 'user_id', '{$customer->getId()}');
                 $eventData['items'][] = $_item;
                 $result[] = ['remove_from_cart', $eventData];
             }
-            Mage::getSingleton('core/session')->unsRemovedProductsForAnalytics();
         }
 
         /**
@@ -181,7 +180,6 @@ gtag('set', 'user_id', '{$customer->getId()}');
                 ];
                 $eventData['items'][] = $_item;
                 $result[] = ['add_to_cart', $eventData];
-                Mage::getSingleton('core/session')->unsAddedProductsForAnalytics();
             }
         }
 
