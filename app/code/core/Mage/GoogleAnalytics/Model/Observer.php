@@ -82,6 +82,7 @@ class Mage_GoogleAnalytics_Model_Observer
             $manufacturer = $attribute ? $attribute->getFrontend()->getValue($product) : '';
             $dataForAnalytics = [
                 'id' => $product->getId(),
+                'item' => $item,
                 'sku' => $product->getSku(),
                 'name' => $product->getName(),
                 'qty' => $addedQty ?: $removedQty,
