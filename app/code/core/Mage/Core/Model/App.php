@@ -364,9 +364,6 @@ class Mage_Core_Model_App
         } else {
             flush();
         }
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
 
         try {
             Mage::dispatchEvent('core_app_run_after', ['app' => $this]);
@@ -374,6 +371,10 @@ class Mage_Core_Model_App
             Mage::logException($e);
         }
 
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        
         return $this;
     }
 
