@@ -1,0 +1,15 @@
+<form action="<?php echo $this->getFormActionUrl(); ?>" method="post">
+    <input type="hidden" name="client_id" value="<?php echo $this->htmlEscape($this->getClient()->getId()); ?>" />
+    <input type="hidden" name="redirect_uri" value="<?php echo $this->htmlEscape($this->getRedirectUri()); ?>" />
+    <input type="hidden" name="scope" value="<?php echo $this->htmlEscape($this->getScope()); ?>" />
+    <input type="hidden" name="state" value="<?php echo $this->htmlEscape($this->getState()); ?>" />
+
+    <h1><?php echo $this->__('Authorize %s', $this->htmlEscape($this->getClient()->getName())); ?></h1>
+    <p><?php echo $this->__('The application %s is requesting the following permissions:', $this->htmlEscape($this->getScope())); ?></p>
+    <p><?php echo $this->htmlEscape($this->getScope()); ?></p>
+
+    <div class="form-buttons">
+        <button type="submit" name="authorized" value="yes"><?php echo $this->__('Allow'); ?></button>
+        <button type="submit" name="authorized" value="no"><?php echo $this->__('Deny'); ?></button>
+    </div>
+</form>
