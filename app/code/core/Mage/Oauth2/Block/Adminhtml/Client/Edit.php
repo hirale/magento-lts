@@ -12,7 +12,6 @@ class Mage_Oauth2_Block_Adminhtml_Client_Edit extends Mage_Adminhtml_Block_Widge
     }
     public function __construct()
     {
-
         parent::__construct();
         $this->_blockGroup = 'oauth2';
         $this->_controller = 'adminhtml_client';

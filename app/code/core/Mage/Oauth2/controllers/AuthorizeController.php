@@ -44,8 +44,6 @@ class Mage_Oauth2_AuthorizeController extends Mage_Oauth2_Controller_BaseControl
     protected function _processAuthorization()
     {
         try {
-
-
             $authorized = $this->getRequest()->getParam('authorized');
             $clientId = $this->getRequest()->getParam('client_id');
             $redirectUri = $this->getRequest()->getParam('redirect_uri');
@@ -66,7 +64,7 @@ class Mage_Oauth2_AuthorizeController extends Mage_Oauth2_Controller_BaseControl
                 if (!$customer->getId()) {
                     $this->_sendResponse(400, 'Invalid customer.');
                     return;
-                } else if ($email && $email != $customer->getEmail()) {
+                } elseif ($email && $email != $customer->getEmail()) {
                     $this->_sendResponse(400, 'Invalid customer email.');
                     return;
                 }

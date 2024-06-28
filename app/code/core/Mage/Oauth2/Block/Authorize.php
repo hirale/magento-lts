@@ -1,4 +1,5 @@
 <?php
+
 class Mage_Oauth2_Block_Authorize extends Mage_Core_Block_Template
 {
     protected function _construct()
@@ -29,6 +30,6 @@ class Mage_Oauth2_Block_Authorize extends Mage_Core_Block_Template
 
     public function getFormActionUrl()
     {
-        return $this->getUrl('*/*/index', array('_secure' => true));
+        return $this->getUrl('*/*/index', ['_secure' => true]);
     }
 }

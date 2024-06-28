@@ -1,4 +1,5 @@
 <?php
+
 class Mage_Oauth2_Block_Device_Verify extends Mage_Core_Block_Template
 {
     protected function _construct()

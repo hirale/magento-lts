@@ -5,11 +5,11 @@ $installer = $this;
 $installer->startSetup();
 
 
-$tables = array(
+$tables = [
     $installer->getTable('oauth2/client'),
     $installer->getTable('oauth2/auth_code'),
     $installer->getTable('oauth2/access_token')
-);
+];
 
 foreach ($tables as $table) {
     if ($installer->getConnection()->isTableExists($table)) {
