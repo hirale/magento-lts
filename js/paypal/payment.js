@@ -19,6 +19,9 @@ class PayPalPayment {
         this.renderPromise = null;
         this.reviewContainerInterval = null;
         this.abortController = new AbortController();
+        this.isFirecheckout = false;
+        this.firecheckoutObserver = null;
+        this.firecheckoutObserverTimer = null;
 
         this.init();
     }
@@ -30,6 +33,7 @@ class PayPalPayment {
             });
         }
 
+        this.isFirecheckout = !!document.getElementById('firecheckout-form');
         this.setupEventListeners();
         this.checkAndInitialize();
     }
@@ -37,6 +41,33 @@ class PayPalPayment {
     setupEventListeners() {
         this.setupPaymentMethodHandling();
         this.setupPaymentButtonHandling();
+        this.setupFirecheckoutObserver();
+    }
+
+    /**
+     * FireCheckout re-renders parts of its form (including the review
+     * buttons area) over ajax when addresses or shipping methods change.
+     * Watch for the PayPal container disappearing while our method is
+     * selected and re-render the buttons in place.
+     */
+    setupFirecheckoutObserver() {
+        if (!this.isFirecheckout) return;
+
+        const form = document.getElementById('firecheckout-form');
+        this.firecheckoutObserver = new MutationObserver(() => {
+            if (this.firecheckoutObserverTimer) {
+                clearTimeout(this.firecheckoutObserverTimer);
+            }
+            this.firecheckoutObserverTimer = setTimeout(() => {
+                if (this.getCurrentPaymentMethod() !== this.config.methodCode) return;
+                const reviewContainer = document.getElementById(this.config.reviewButtonContainerId);
+                if (reviewContainer && !document.getElementById(this.config.containerId)) {
+                    this.buttonInitialized = false;
+                    this.initializePayPalButton();
+                }
+            }, 150);
+        });
+        this.firecheckoutObserver.observe(form, { childList: true, subtree: true });
     }
 
     setupPaymentButtonHandling() {
@@ -143,6 +174,9 @@ class PayPalPayment {
 
         if (!checkoutButton) {
             reviewContainer.prepend(paypalContainer);
+        } else if (this.isFirecheckout) {
+            checkoutButton.style.display = 'none';
+            checkoutButton.before(paypalContainer);
         } else {
             checkoutButton.remove();
             const pleaseWaitSpan = reviewContainer.querySelector('span.please-wait');
@@ -194,7 +228,7 @@ class PayPalPayment {
 
     handleRenderError(error, reviewContainer, paypalContainer) {
         paypalContainer?.remove();
-        this.recreateCheckoutButton(reviewContainer);
+        this.restoreCheckoutButton(reviewContainer);
         this.buttonInitialized = false;
     }
 
@@ -429,12 +463,29 @@ class PayPalPayment {
 
         if (selectedMethod !== this.config.methodCode) {
             this.removePayPalButton();
-            this.recreateCheckoutButton(reviewContainer);
+            this.restoreCheckoutButton(reviewContainer);
+            return;
+        }
+
+        if (this.isFirecheckout) {
+            // FireCheckout never re-renders the buttons area on its own:
+            // render the PayPal buttons in place instead of removing the
+            // container and waiting for the next step render like onepage.
+            this.initializePayPalButton();
             return;
         }
 
         this.buttonInitialized = false;
         reviewContainer.remove();
+    }
+
+    restoreCheckoutButton(reviewContainer) {
+        const button = reviewContainer.querySelector('button.btn-checkout');
+        if (button) {
+            button.style.display = '';
+            return;
+        }
+        this.recreateCheckoutButton(reviewContainer);
     }
 
     removePayPalButton() {
@@ -513,6 +564,15 @@ class PayPalPayment {
         if (this.reviewContainerInterval) {
             clearInterval(this.reviewContainerInterval);
             this.reviewContainerInterval = null;
+        }
+
+        if (this.firecheckoutObserver) {
+            this.firecheckoutObserver.disconnect();
+            this.firecheckoutObserver = null;
+        }
+        if (this.firecheckoutObserverTimer) {
+            clearTimeout(this.firecheckoutObserverTimer);
+            this.firecheckoutObserverTimer = null;
         }
 
         this.removePayPalButton();

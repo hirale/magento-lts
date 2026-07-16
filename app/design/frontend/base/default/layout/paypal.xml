@@ -7,6 +7,19 @@
         </reference>
     </checkout_onepage_index>
 
+    <!--
+        TM FireCheckout (one-step checkout) renders the paypal/form block
+        through the method's form_block_type, but loads neither the payment
+        JS nor the CSS by itself. The handle is inert when the extension is
+        not installed.
+    -->
+    <firecheckout_index_index>
+        <reference name="head">
+            <action method="addJs"><script>paypal/payment.js</script></action>
+            <action method="addCss"><stylesheet>css/paypal.css</stylesheet></action>
+        </reference>
+    </firecheckout_index_index>
+
     <checkout_onepage_paymentmethod>
         <reference name="checkout.payment.methods">
             <block type="paypal/form" name="payment.method.paypal" template="paypal/payment.phtml"/>
