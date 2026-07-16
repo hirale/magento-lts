@@ -116,6 +116,14 @@ function mageCoreErrorHandler($errno, $errstr, $errfile, $errline)
         return false;
     }
 
+    // This branch is frozen on v20.16.0 while running on newer PHP than the
+    // release targeted; upstream addresses deprecations individually and we
+    // do not backport that churn. Silence them everywhere (developer mode
+    // would otherwise escalate each one to an exception).
+    if ($errno == E_DEPRECATED) {
+        return true;
+    }
+
     // PEAR specific message handling
     if (stripos($errfile . $errstr, 'pear') !== false) {
         // ignore strict and deprecated notices
