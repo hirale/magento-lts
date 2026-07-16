@@ -61,9 +61,19 @@ class PayPalPayment {
             this.firecheckoutObserverTimer = setTimeout(() => {
                 if (this.getCurrentPaymentMethod() !== this.config.methodCode) return;
                 const reviewContainer = document.getElementById(this.config.reviewButtonContainerId);
-                if (reviewContainer && !document.getElementById(this.config.containerId)) {
+                if (!reviewContainer) return;
+
+                if (!document.getElementById(this.config.containerId)) {
                     this.buttonInitialized = false;
                     this.initializePayPalButton();
+                    return;
+                }
+
+                // Partial ajax re-renders (address/shipping updates) can put a
+                // fresh, visible place-order button back next to our buttons.
+                const checkoutButton = reviewContainer.querySelector('button.btn-checkout');
+                if (checkoutButton && checkoutButton.style.display !== 'none') {
+                    checkoutButton.style.display = 'none';
                 }
             }, 150);
         });
