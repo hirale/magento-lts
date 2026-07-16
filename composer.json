@@ -33,7 +33,6 @@
         "colinmollenhour/magento-redis-session": "^3.2.0",
         "components/jquery": "^3.7.1",
         "cweagans/composer-patches": "^2.0",
-        "empiricompany/openmage_ignition": "^1.5",
         "ezyang/htmlpurifier": "^4.17",
         "flowjs/flowjs": "dev-master",
         "laminas/laminas-captcha": "^2.18",
