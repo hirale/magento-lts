@@ -21,6 +21,7 @@
             </paypal>
             <paypal_resource>
                 <class>Mage_Paypal_Model_Resource</class>
+                <deprecatedNode>paypal_mysql4</deprecatedNode>
                 <entities>
                     <debug>
                         <table>paypal_debug</table>

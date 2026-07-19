@@ -21,6 +21,7 @@
             </rule>
             <rule_resource>
                 <class>Mage_Rule_Model_Resource</class>
+                <deprecatedNode>rule_mysql4</deprecatedNode>
             </rule_resource>
         </models>
         <blocks>

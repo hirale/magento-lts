@@ -10,7 +10,7 @@ declare(strict_types=1);
  */
 
 /**
- * Schedule resource
+ * Schedule mysql4 resource
  *
  * @package    Mage_Cron
  */
