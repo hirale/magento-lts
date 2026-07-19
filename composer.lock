@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6dd2ccfe502647168bc3df7b812ffd95",
+    "content-hash": "a117d995925f715aaaf16d64afca86f1",
     "packages": [
         {
             "name": "apimatic/core",
@@ -10419,12 +10419,12 @@
             "version": "13.1.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/easy-coding-standard/ecs.git",
+                "url": "https://github.com/ecsphp/ecs.git",
                 "reference": "6d22473d1f36945884d8cb291777166020a47770"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/easy-coding-standard/ecs/zipball/6d22473d1f36945884d8cb291777166020a47770",
+                "url": "https://api.github.com/repos/ecsphp/ecs/zipball/6d22473d1f36945884d8cb291777166020a47770",
                 "reference": "6d22473d1f36945884d8cb291777166020a47770",
                 "shasum": ""
             },
