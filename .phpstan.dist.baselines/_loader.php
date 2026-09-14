@@ -93213,12 +93213,6 @@ $ignoreErrors[] = [
 	'path' => __DIR__ . '/../app/code/core/Mage/Paypal/Model/Payment.php',
 ];
 $ignoreErrors[] = [
-	'rawMessage' => 'Parameter #1 $quote of method Mage_Paypal_Model_Helper::getPaypalRequestId() expects Mage_Sales_Model_Quote, Mage_Sales_Model_Order|Mage_Sales_Model_Quote given.',
-	'identifier' => 'argument.type',
-	'count' => 1,
-	'path' => __DIR__ . '/../app/code/core/Mage/Paypal/Model/Payment.php',
-];
-$ignoreErrors[] = [
 	'rawMessage' => 'Parameter #1 $response of method Mage_Paypal_Model_Helper::handleApiError() expects PaypalServerSdkLib\\Http\\ApiResponse, PaypalServerSdkLib\\Http\\ApiResponse|null given.',
 	'identifier' => 'argument.type',
 	'count' => 3,
@@ -93497,7 +93491,7 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
 	'rawMessage' => 'Only booleans are allowed in a negated boolean, mixed given.',
 	'identifier' => 'booleanNot.exprNotBoolean',
-	'count' => 2,
+	'count' => 1,
 	'path' => __DIR__ . '/../app/code/core/Mage/Paypal/controllers/PaymentController.php',
 ];
 $ignoreErrors[] = [

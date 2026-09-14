@@ -5183,7 +5183,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Only booleans are allowed in a negated boolean, mixed given.',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../app/code/core/Mage/Paypal/controllers/PaymentController.php',
 ];
 $ignoreErrors[] = [
