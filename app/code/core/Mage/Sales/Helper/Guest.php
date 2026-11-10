@@ -75,11 +75,11 @@ class Mage_Sales_Helper_Guest extends Mage_Core_Helper_Data
 
             if ($order->getId()) {
                 $billingAddress = $order->getBillingAddress();
-                if ((strtolower($lastName) != strtolower($billingAddress->getLastname()))
+                if ((strtolower($lastName) !== strtolower($billingAddress->getLastname()))
                     || ($type == 'email'
-                        && strtolower($email) != strtolower($order->getCustomerEmail()))
+                        && strtolower($email) !== strtolower($order->getCustomerEmail()))
                     || ($type == 'zip'
-                        && (strtolower($zip) != strtolower($billingAddress->getPostcode())))
+                        && (strtolower($zip) !== strtolower($billingAddress->getPostcode())))
                 ) {
                     $errors = true;
                 }
@@ -163,9 +163,7 @@ class Mage_Sales_Helper_Guest extends Mage_Core_Helper_Data
     protected function _loadOrderByCookie($cookie = null)
     {
         if (!is_null($cookie)) {
-            $cookieData = explode(':', base64_decode($cookie));
-            $protectCode = $cookieData[0] ?? null;
-            $incrementId = $cookieData[1] ?? null;
+            [$protectCode, $incrementId] = explode(':', base64_decode($cookie));
 
             if (!empty($protectCode) && !empty($incrementId)) {
                 /** @var Mage_Sales_Model_Order $order */

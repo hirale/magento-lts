@@ -53,6 +53,7 @@ class Mage_Dataflow_Model_Convert_Adapter_Http_Curl extends Mage_Dataflow_Model_
     }
 
     /**
+     * @param  mixed                                 $uri
      * @throws Mage_Dataflow_Model_Convert_Exception
      */
     protected function _validateUri($uri): void
@@ -66,7 +67,7 @@ class Mage_Dataflow_Model_Convert_Adapter_Http_Curl extends Mage_Dataflow_Model_
             );
         }
 
-        if (!$this->_isAllowedByPrefix($uri)) {
+        if (!$this->_isAllowedByPrefix((string) $uri)) {
             throw $this->addException(
                 "The 'uri' parameter is not allowed by the configured URL prefix whitelist",
                 Mage_Dataflow_Model_Convert_Exception::FATAL,
@@ -77,7 +78,7 @@ class Mage_Dataflow_Model_Convert_Adapter_Http_Curl extends Mage_Dataflow_Model_
     protected function _isAllowedByPrefix(string $uri): bool
     {
         $allowedPrefixes = $this->_getAllowedUrlPrefixes();
-        if (!$allowedPrefixes) {
+        if ($allowedPrefixes === []) {
             return true;
         }
 
@@ -138,6 +139,9 @@ class Mage_Dataflow_Model_Convert_Adapter_Http_Curl extends Mage_Dataflow_Model_
         return str_starts_with($uriRest, $prefixRest);
     }
 
+    /**
+     * @return list<string>
+     */
     protected function _getAllowedUrlPrefixes(): array
     {
         $allowedPrefixes = (string) Mage::getStoreConfig(self::XML_PATH_ALLOWED_URL_PREFIXES);
@@ -145,10 +149,15 @@ class Mage_Dataflow_Model_Convert_Adapter_Http_Curl extends Mage_Dataflow_Model_
             return [];
         }
 
-        return array_values(array_filter(array_map(
-            trim(...),
-            preg_split('/[\r\n,]+/', $allowedPrefixes),
-        )));
+        $lines = preg_split('/[\r\n,]+/', $allowedPrefixes);
+        if ($lines === false) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            array_map(trim(...), $lines),
+            static fn(string $prefix): bool => $prefix !== '',
+        ));
     }
 
     /**

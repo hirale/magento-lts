@@ -15,6 +15,7 @@ use Iterator;
 use Mage;
 use Mage_Catalog_Model_Product_Option_Type_File as Subject;
 use OpenMage\Tests\Unit\OpenMageTest;
+use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionMethod;
 
 final class FileExtensionsTest extends OpenMageTest
@@ -41,9 +42,7 @@ final class FileExtensionsTest extends OpenMageTest
         yield 'xslt' => ['xslt'];
     }
 
-    /**
-     * @dataProvider blockedExtensionProvider
-     */
+    #[DataProvider('blockedExtensionProvider')]
     public function testUnlistedOptionRefuses(string $extension): void
     {
         self::assertContains($extension, $this->uploadForbidden(null));

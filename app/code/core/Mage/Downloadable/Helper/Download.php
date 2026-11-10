@@ -1,13 +1,14 @@
 <?php
 
-use Monolog\Level;
-
 /**
  * @copyright  For copyright and license information, read the COPYING.txt file.
  * @link       /COPYING.txt
  * @license    Open Software License (OSL 3.0)
  * @package    Mage_Downloadable
  */
+
+use Monolog\Level;
+
 /**
  * Downloadable Products Download Helper
  *
@@ -178,7 +179,7 @@ class Mage_Downloadable_Helper_Download extends Mage_Core_Helper_Abstract
                     $match = [];
                     if (preg_match('#^([^:]+): (.*)\s+$#', $str, $match)) {
                         $key = strtolower($match[1]);
-                        if ($key == 'set-cookie') {
+                        if ($key === 'set-cookie') {
                             continue;
                         }
 
@@ -218,8 +219,8 @@ class Mage_Downloadable_Helper_Download extends Mage_Core_Helper_Abstract
      * Only the http and https schemes are accepted, every other stream wrapper
      * (file, ftp, gopher, php, data, ...) is rejected before anything is fetched.
      *
-     * @param  string              $url
-     * @return array
+     * @param  string                                                                                                                          $url
+     * @return array{scheme: string, host: string, port?: int, user?: string, pass?: string, path?: string, query?: string, fragment?: string}
      * @throws Mage_Core_Exception
      */
     protected function _validateUrl($url)
@@ -262,7 +263,7 @@ class Mage_Downloadable_Helper_Download extends Mage_Core_Helper_Abstract
     protected function _getAllowedAddress($host, $checkAddress = true)
     {
         $addresses = $this->_resolveHost($host);
-        if (!$addresses) {
+        if ($addresses === []) {
             Mage::throwException(Mage::helper('downloadable')->__('Cannot resolve the download URL host.'));
         }
 
@@ -283,8 +284,8 @@ class Mage_Downloadable_Helper_Download extends Mage_Core_Helper_Abstract
      * Retrieve all IPv4 and IPv6 addresses the given host resolves to
      *
      * @SuppressWarnings("PHPMD.ErrorControlOperator")
-     * @param  string $host
-     * @return array
+     * @param  string       $host
+     * @return list<string>
      */
     protected function _resolveHost($host)
     {
@@ -347,7 +348,7 @@ class Mage_Downloadable_Helper_Download extends Mage_Core_Helper_Abstract
             $result['trusted'] = $this->_isAllowedByPrefix($url);
 
             $addresses = $this->_resolveHost($urlProp['host']);
-            if (!$addresses) {
+            if ($addresses === []) {
                 $result['reason'] = Mage::helper('downloadable')->__('Cannot resolve the download URL host.');
                 return $result;
             }
@@ -462,7 +463,7 @@ class Mage_Downloadable_Helper_Download extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * @param array $urlProp result of _validateUrl()
+     * @param array{scheme: string, host: string, port?: int, user?: string, pass?: string, path?: string, query?: string, fragment?: string} $urlProp result of _validateUrl()
      */
     protected function _getUrlOrigin(array $urlProp): string
     {
@@ -475,7 +476,7 @@ class Mage_Downloadable_Helper_Download extends Mage_Core_Helper_Abstract
      * The refusal otherwise only reaches the customer as a failed download. Only the origin
      * is reported, never the full URL, which may carry a signed token.
      *
-     * @param array $urlProp result of _validateUrl()
+     * @param array{scheme: string, host: string, port?: int, user?: string, pass?: string, path?: string, query?: string, fragment?: string} $urlProp result of _validateUrl()
      */
     protected function _reportBlockedUrl(array $urlProp, string $address, string $addressClass): void
     {
@@ -487,7 +488,7 @@ class Mage_Downloadable_Helper_Download extends Mage_Core_Helper_Abstract
             );
 
             $cacheKey = 'downloadable_link_url_refused_' . md5($origin);
-            if (Mage::app()->loadCache($cacheKey)) {
+            if (Mage::app()->loadCache($cacheKey) !== false) {
                 return;
             }
 
@@ -512,7 +513,7 @@ class Mage_Downloadable_Helper_Download extends Mage_Core_Helper_Abstract
     /**
      * Retrieve the configured trusted download URL prefixes
      *
-     * @return array
+     * @return list<string>
      */
     protected function _getAllowedUrlPrefixes()
     {
@@ -521,10 +522,15 @@ class Mage_Downloadable_Helper_Download extends Mage_Core_Helper_Abstract
             return [];
         }
 
-        return array_values(array_filter(array_map(
-            trim(...),
-            preg_split('/[\r\n,]+/', $allowedPrefixes),
-        )));
+        $lines = preg_split('/[\r\n,]+/', $allowedPrefixes);
+        if ($lines === false) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            array_map(trim(...), $lines),
+            static fn(string $prefix): bool => $prefix !== '',
+        ));
     }
 
     /**

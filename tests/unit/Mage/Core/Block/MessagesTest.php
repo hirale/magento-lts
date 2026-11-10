@@ -66,12 +66,7 @@ final class MessagesTest extends OpenMageTest
      * The core/messages.phtml template, which the block itself does not use, must not print the
      * raw message text either (GHSA-75mq-cvpr-g7wq)
      *
-     * Runs in its own process: PHPUnit 9 re-includes every file the parent process included
-     * in each later separate-process test, and re-including a template outside a block fails.
-     *
      * @group Block
-     * @runInSeparateProcess
-     * @preserveGlobalState disabled
      */
     public function testMessagesTemplateRendersSanitizedHtml(): void
     {
@@ -103,7 +98,11 @@ final class MessagesTest extends OpenMageTest
             $subject->addMessage(new Mage_Core_Model_Message_Notice($messageText));
             $subject->addMessage(new Mage_Core_Model_Message_Success($messageText));
             $subject->addMessage(new Mage_Core_Model_Message_Warning($messageText));
-            $rendered[$method] = $subject->{$method}();
+            $rendered[$method] = match ($method) {
+                'toHtml' => $subject->toHtml(),
+                'getHtml' => $subject->getHtml(),
+                'getGroupedHtml' => $subject->getGroupedHtml(),
+            };
         }
 
         return $rendered;

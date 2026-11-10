@@ -18,6 +18,9 @@ use ReflectionMethod;
 use OpenMage\Tests\Unit\OpenMageTest;
 use OpenMage\Tests\Unit\Traits\DataProvider\Mage\Api\Model\UserTrait;
 
+/**
+ * @phpstan-import-type ValidateData from UserTrait
+ */
 final class UserTest extends OpenMageTest
 {
     use UserTrait;
@@ -29,11 +32,14 @@ final class UserTest extends OpenMageTest
     /**
      * @dataProvider provideValidateApiUserData
      * @param array|true $expectedResult
+     * @phpstan-param ValidateData $data
      * @group Model
      */
-    public function testValidate($expectedResult, array $methods): void
+    public function testValidate(array|bool $expectedResult, array $data, bool $userExists): void
     {
-        $mock = $this->getMockWithCalledMethods(Subject::class, $methods);
+        $mock = $this->createPartialMock(Subject::class, ['userExists']);
+        $mock->setData($data);
+        $mock->method('userExists')->willReturn($userExists);
 
         self::assertInstanceOf(Subject::class, $mock);
         self::assertSame($expectedResult, $mock->validate());
@@ -45,8 +51,8 @@ final class UserTest extends OpenMageTest
      *
      * @dataProvider provideApiAccessRevokedBySaveData
      * @group Model
-     * @param array<string, int|string> $origData
-     * @param array<string, int|string> $data
+     * @param array<string, mixed> $origData
+     * @param array<string, mixed> $data
      */
     public function testIsApiAccessRevokedBySave(bool $expectedResult, array $origData, array $data): void
     {

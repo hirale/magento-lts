@@ -15,6 +15,11 @@
 class Mage_Core_Model_Email_Template_Filter extends Varien_Filter_Template
 {
     /**
+     * Config node listing the layout handles that the {{layout}} directive may render
+     */
+    public const XML_PATH_ALLOWED_LAYOUT_HANDLES = 'global/template/email_layout_handles';
+
+    /**
      * Use absolute links flag
      *
      * @var bool
@@ -135,9 +140,7 @@ class Mage_Core_Model_Email_Template_Filter extends Varien_Filter_Template
      */
     public function getStoreId()
     {
-        if ($this->_storeId === null) {
-            $this->_storeId = Mage::app()->getStore()->getId();
-        }
+        $this->_storeId ??= Mage::app()->getStore()->getId();
 
         return $this->_storeId;
     }
@@ -206,6 +209,12 @@ class Mage_Core_Model_Email_Template_Filter extends Varien_Filter_Template
         $skipParams = ['handle', 'area'];
 
         $params = $this->_getIncludeParameters($construction[2]);
+        $handle = isset($params['handle']) && is_string($params['handle']) ? $params['handle'] : '';
+        if (!$this->isLayoutHandleAllowed($handle)) {
+            Mage::log('Security problem: layout handle ' . $handle . ' has not been whitelisted.');
+            return '';
+        }
+
         $layout = Mage::getModel('core/layout');
         /** @var Mage_Core_Model_Layout $layout */
         if (isset($params['area'])) {
@@ -214,7 +223,7 @@ class Mage_Core_Model_Email_Template_Filter extends Varien_Filter_Template
             $layout->setArea(Mage::app()->getLayout()->getArea());
         }
 
-        $layout->getUpdate()->addHandle($params['handle']);
+        $layout->getUpdate()->addHandle($handle);
         $layout->getUpdate()->load();
 
         $layout->generateXml();
@@ -242,6 +251,34 @@ class Mage_Core_Model_Email_Template_Filter extends Varien_Filter_Template
 
         $layout->setDirectOutput(false);
         return $layout->getOutput();
+    }
+
+    /**
+     * Whether a layout handle may be rendered by the {{layout}} directive
+     *
+     * Template content can be edited by admin roles that are not trusted with arbitrary blocks (see the block
+     * whitelist enforced by blockDirective()), so only handles declared under
+     * global/template/email_layout_handles are rendered. Modules that ship email layout handles declare them there.
+     */
+    public function isLayoutHandleAllowed(string $handle): bool
+    {
+        if ($handle === '') {
+            return false;
+        }
+
+        $config = Mage::getConfig();
+        $allowed = $config instanceof Mage_Core_Model_Config ? $config->getNode(self::XML_PATH_ALLOWED_LAYOUT_HANDLES) : false;
+        if (!$allowed instanceof Varien_Simplexml_Element) {
+            return false;
+        }
+
+        foreach ($allowed->children() as $node) {
+            if ($node->getName() === $handle) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -297,9 +334,7 @@ class Mage_Core_Model_Email_Template_Filter extends Varien_Filter_Template
     public function storeDirective($construction)
     {
         $params = $this->_getIncludeParameters($construction[2]);
-        if (!isset($params['_query'])) {
-            $params['_query'] = [];
-        }
+        $params['_query'] ??= [];
 
         foreach ($params as $key => $value) {
             if (str_starts_with($key, '_query_')) {
@@ -359,7 +394,7 @@ class Mage_Core_Model_Email_Template_Filter extends Varien_Filter_Template
     #[Override]
     public function varDirective($construction)
     {
-        if (count($this->_templateVars) == 0) {
+        if (count($this->_templateVars) === 0) {
             // If template preprocessing
             return $construction[0];
         }
@@ -439,12 +474,8 @@ class Mage_Core_Model_Email_Template_Filter extends Varien_Filter_Template
     public function protocolDirective($construction)
     {
         $params = $this->_getIncludeParameters($construction[2]);
-        $store = null;
-        if (isset($params['store'])) {
-            $store = Mage::app()->getSafeStore($params['store']);
-        }
 
-        $isSecure = Mage::app()->getStore($store)->isCurrentlySecure();
+        $isSecure = Mage::app()->isCurrentlySecure();
         $protocol = $isSecure ? 'https' : 'http';
         if (isset($params['url'])) {
             return $protocol . '://' . $params['url'];

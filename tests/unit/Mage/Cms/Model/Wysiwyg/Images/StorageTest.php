@@ -40,8 +40,6 @@ final class StorageTest extends OpenMageTest
 
     /**
      * @group Model
-     * @group runInSeparateProcess
-     * @runInSeparateProcess
      */
     public function testResizeOnTheFly(): void
     {
@@ -57,10 +55,12 @@ final class StorageTest extends OpenMageTest
     {
         $helper = Mage::helper('cms/wysiwyg_images');
         $current = $helper->getCurrentPath();
+        self::assertIsString($current);
         $currentReal = realpath($current);
         self::assertIsString($currentReal);
 
         $outside = tempnam(sys_get_temp_dir(), 'w949');
+        self::assertIsString($outside);
         $inside = $current . DS . 'w949-' . uniqid() . '.png';
         touch($inside);
 
@@ -92,8 +92,6 @@ final class StorageTest extends OpenMageTest
 
     /**
      * @group Model
-     * @group runInSeparateProcess
-     * @runInSeparateProcess
      */
     public function testGetSession(): void
     {

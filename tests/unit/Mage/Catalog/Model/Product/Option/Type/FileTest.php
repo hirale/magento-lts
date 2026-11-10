@@ -16,6 +16,7 @@ use Mage;
 use Mage_Catalog_Model_Product_Option_Type_File as Subject;
 use Mage_Core_Exception;
 use Override;
+use PHPUnit\Framework\Attributes\DataProvider;
 use OpenMage\Tests\Unit\OpenMageTest;
 use OpenMage\Tests\Unit\Traits\DataProvider\Mage\Catalog\Model\Product\Option\Type\FileTrait;
 use ReflectionMethod;
@@ -49,13 +50,11 @@ final class FileTest extends OpenMageTest
         yield 'single dot segments' => ['/media/custom_options/./quote/./file.txt'];
     }
 
-    /**
-     * @dataProvider acceptedPathProvider
-     */
+    #[DataProvider('acceptedPathProvider')]
     public function testAcceptsPathsInsideTargetDirs(string $path): void
     {
+        $this->expectNotToPerformAssertions();
         $this->validate($path);
-        self::assertTrue(true, 'no exception expected');
     }
 
     public static function rejectedPathProvider(): Iterator
@@ -71,9 +70,7 @@ final class FileTest extends OpenMageTest
         yield 'null byte' => ["/media/custom_options/quote/a\0.php"];
     }
 
-    /**
-     * @dataProvider rejectedPathProvider
-     */
+    #[DataProvider('rejectedPathProvider')]
     public function testRejectsPathsOutsideTargetDirs(string $path): void
     {
         $this->expectException(Mage_Core_Exception::class);
@@ -81,17 +78,13 @@ final class FileTest extends OpenMageTest
         $this->validate($path);
     }
 
-    /**
-     * @dataProvider acceptedPathProvider
-     */
+    #[DataProvider('acceptedPathProvider')]
     public function testIsValidOptionFilePathAcceptsPathsInsideTargetDirs(string $path): void
     {
         self::assertTrue(self::$subject->isValidOptionFilePath($path));
     }
 
-    /**
-     * @dataProvider rejectedPathProvider
-     */
+    #[DataProvider('rejectedPathProvider')]
     public function testIsValidOptionFilePathRejectsPathsOutsideTargetDirs(string $path): void
     {
         self::assertFalse(self::$subject->isValidOptionFilePath($path));
@@ -106,9 +99,7 @@ final class FileTest extends OpenMageTest
         yield 'boolean' => [true];
     }
 
-    /**
-     * @dataProvider nonStringPathProvider
-     */
+    #[DataProvider('nonStringPathProvider')]
     public function testIsValidOptionFilePathRejectsNonStrings(mixed $path): void
     {
         self::assertFalse(self::$subject->isValidOptionFilePath($path));

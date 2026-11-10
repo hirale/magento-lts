@@ -13,6 +13,7 @@ namespace OpenMage\Tests\Unit\Varien\Filter;
 
 use Generator;
 use OpenMage\Tests\Unit\OpenMageTest;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Varien_Filter_Template as Subject;
 use Varien_Object;
 
@@ -23,13 +24,13 @@ final class TemplateTest extends OpenMageTest
      * configuration, whatever the case of the method name (PHP method names are
      * case-insensitive) and whether the path names the field or one of its parents.
      *
-     * @dataProvider provideGetConfigDirectives
      * @group Filter
      */
+    #[DataProvider('provideGetConfigDirectives')]
     public function testGetConfigDoesNotDiscloseEncryptedPaths(string $directive, string $expected): void
     {
         $store = new class extends Varien_Object {
-            public function getConfig($path)
+            public function getConfig(?string $path): string
             {
                 return $path === null ? '' : 'value-of:' . $path;
             }

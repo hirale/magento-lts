@@ -148,8 +148,8 @@ final class Mage
      * Gets the detailed Magento version information
      *
      * @return array<string, string>
-     * @deprecated
      */
+    #[Deprecated]
     public static function getVersionInfo()
     {
         return [
@@ -203,8 +203,8 @@ final class Mage
         if (self::getOpenMageMajorVersion() === 20) {
             return [
                 'major'     => '20',
-                'minor'     => '18',
-                'patch'     => '2',
+                'minor'     => '19',
+                'patch'     => '0',
                 'stability' => '', // beta,alpha,rc
                 'number'    => '', // 1,2,3,0.3.7,x.7.z.92 @see https://semver.org/#spec-item-9
             ];

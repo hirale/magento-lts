@@ -176,8 +176,8 @@ class Mage_Oauth_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         // Without an authority there is nothing to compare structurally
-        if (empty($callback['scheme']) || empty($callback['host'])
-            || empty($registered['scheme']) || empty($registered['host'])
+        if (($callback['scheme'] ?? '') === '' || ($callback['host'] ?? '') === ''
+            || ($registered['scheme'] ?? '') === '' || ($registered['host'] ?? '') === ''
         ) {
             return $callbackUrl === $registeredCallbackUrl;
         }
@@ -277,7 +277,7 @@ class Mage_Oauth_Helper_Data extends Mage_Core_Helper_Abstract
     {
         // Safe get cleanup probability value from system configuration
         $configValue = Mage::getStoreConfigAsInt(self::XML_PATH_CLEANUP_PROBABILITY);
-        return $configValue > 0 && mt_rand(1, $configValue) == 1;
+        return $configValue > 0 && mt_rand(1, $configValue) === 1;
     }
 
     /**
