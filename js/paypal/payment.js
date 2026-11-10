@@ -275,6 +275,8 @@ class PayPalPayment {
                 throw new Error('Form validation failed');
             }
 
+            await this.saveFirecheckoutAddresses();
+
             const requestBody = new URLSearchParams({
                 form_key: this.config.formKey
             });
@@ -403,6 +405,50 @@ class PayPalPayment {
             signal: this.abortController.signal
         }).catch(err => console.error('Cancel order error:', err));
         this.showError('PayPal payment cancelled by user.');
+    }
+
+    /**
+     * FireCheckout only writes the address form to the quote when Place Order submits it, and that
+     * button is hidden behind the PayPal one. Without this the PayPal order and the Magento order are
+     * built from a quote that never received the email, telephone or full address the buyer typed.
+     */
+    async saveFirecheckoutAddresses() {
+        const urls = this.isFirecheckout ? window.checkout?.urls : null;
+        const form = document.getElementById('firecheckout-form');
+        if (!urls?.billing_address || !form) {
+            return;
+        }
+
+        const formData = new URLSearchParams(new FormData(form));
+        const post = async (url) => {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: formData,
+                credentials: 'same-origin',
+                signal: this.abortController.signal
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const result = await response.json().catch(() => ({}));
+            if (result?.error) {
+                const message = Array.isArray(result.message) ? result.message.join('\n') : result.message;
+                throw new Error(message || 'Unable to save the checkout address.');
+            }
+        };
+
+        await post(urls.billing_address);
+
+        const sameAsBilling = form.querySelector('[name="billing[use_for_shipping]"]');
+        const shipsToBillingAddress = !sameAsBilling
+            || (sameAsBilling.type === 'checkbox' ? sameAsBilling.checked : sameAsBilling.value === '1');
+        if (!shipsToBillingAddress && urls.shipping_address) {
+            await post(urls.shipping_address);
+        }
     }
 
     validateForm() {
