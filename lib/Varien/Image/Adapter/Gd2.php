@@ -58,7 +58,20 @@ class Varien_Image_Adapter_Gd2 extends Varien_Image_Adapter_Abstract
         $this->_fileName = $fileName;
         $this->getMimeType();
         $this->_getFileAttributes();
-        $this->_imageHandler = call_user_func($this->_getCallback('create'), $this->_fileName);
+
+        // libpng reports harmless metadata issues (e.g. an incorrect sRGB profile) as warnings while the image loads fine.
+        $previousHandler = set_error_handler(static function (int $errno, string $errstr, string $errfile = '', int $errline = 0) use (&$previousHandler): mixed {
+            if (str_contains($errstr, 'libpng warning')) {
+                return true;
+            }
+
+            return $previousHandler ? $previousHandler($errno, $errstr, $errfile, $errline) : false;
+        }, E_WARNING);
+        try {
+            $this->_imageHandler = call_user_func($this->_getCallback('create'), $this->_fileName);
+        } finally {
+            restore_error_handler();
+        }
     }
 
     /**

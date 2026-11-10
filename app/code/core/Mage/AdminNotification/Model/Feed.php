@@ -144,10 +144,15 @@ class Mage_AdminNotification_Model_Feed extends Mage_Core_Model_Abstract
 
         $curl->close();
 
+        // An outage page instead of the feed would otherwise log one warning per libxml error on every check.
+        $useInternalErrors = libxml_use_internal_errors(true);
         try {
             $xml  = new SimpleXMLElement($data);
         } catch (Exception) {
             return false;
+        } finally {
+            libxml_clear_errors();
+            libxml_use_internal_errors($useInternalErrors);
         }
 
         return $xml;
